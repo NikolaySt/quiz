@@ -1,9 +1,14 @@
 using System.Collections.Generic;
 
-namespace QuizService.Model;
+namespace QuizService.Model.Quizes;
 
 public class QuizResponseModel
 {
+    public long Id { get; set; }
+    public string Title { get; set; }
+    public IEnumerable<QuestionItem> Questions { get; set; }
+    public IDictionary<string, string> Links { get; set; }
+
     public class AnswerItem
     {
         public int Id { get; set; }
@@ -17,9 +22,4 @@ public class QuizResponseModel
         public IEnumerable<AnswerItem> Answers { get; set; }
         public int CorrectAnswerId { get; set; }
     }
-
-    public long Id { get; set; }
-    public string Title { get; set; }
-    public IEnumerable<QuestionItem> Questions { get; set; }
-    public IDictionary<string, string> Links { get; set; }
 }
