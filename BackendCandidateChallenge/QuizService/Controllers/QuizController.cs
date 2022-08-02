@@ -1,170 +1,166 @@
 ﻿using System.Collections.Generic;
-using System.Data;
-using Dapper;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using QuizService.Model;
-using QuizService.Model.Domain;
-using System.Linq;
+using QuizService.Data.Models;
+using QuizService.Model.Answers;
+using QuizService.Model.Questions;
+using QuizService.Model.Quizes;
+using QuizService.Services.Answers;
+using QuizService.Services.Questions;
+using QuizService.Services.Quizes;
 
 namespace QuizService.Controllers;
 
 [Route("api/quizzes")]
 public class QuizController : Controller
 {
-    private readonly IDbConnection _connection;
+    private readonly IQuestionService _questionService;
 
-    public QuizController(IDbConnection connection)
+    private readonly IQuizService _quizService;
+
+    private readonly IAnswerService _answerService;
+
+    public QuizController(
+        IQuestionService questionService,
+        IQuizService quizService,
+        IAnswerService answerService)
     {
-        _connection = connection;
+        _questionService = questionService;
+        _quizService = quizService;
+        _answerService = answerService;
     }
 
     // GET api/quizzes
     [HttpGet]
-    public IEnumerable<QuizResponseModel> Get()
+    public async Task<IEnumerable<QuizResponseModel>> Get()
     {
-        const string sql = "SELECT * FROM Quiz;";
-        var quizzes = _connection.Query<Quiz>(sql);
-        return quizzes.Select(quiz =>
-            new QuizResponseModel
-            {
-                Id = quiz.Id,
-                Title = quiz.Title
-            });
+        var result = await _quizService.GetAll();
+        return result;
     }
 
     // GET api/quizzes/5
     [HttpGet("{id}")]
-    public object Get(int id)
+    public async Task<QuizResponseModel> Get(int id)
     {
-        const string quizSql = "SELECT * FROM Quiz WHERE Id = @Id;";
-        var quiz = _connection.QuerySingle<Quiz>(quizSql, new {Id = id});
-        if (quiz == null)
-            return NotFound();
-        const string questionsSql = "SELECT * FROM Question WHERE QuizId = @QuizId;";
-        var questions = _connection.Query<Question>(questionsSql, new {QuizId = id});
-        const string answersSql = "SELECT a.Id, a.Text, a.QuestionId FROM Answer a INNER JOIN Question q ON a.QuestionId = q.Id WHERE q.QuizId = @QuizId;";
-        var answers = _connection.Query<Answer>(answersSql, new {QuizId = id})
-            .Aggregate(new Dictionary<int, IList<Answer>>(), (dict, answer) => {
-                if (!dict.ContainsKey(answer.QuestionId))
-                    dict.Add(answer.QuestionId, new List<Answer>());
-                dict[answer.QuestionId].Add(answer);
-                return dict;
-            });
-        return new QuizResponseModel
-        {
-            Id = quiz.Id,
-            Title = quiz.Title,
-            Questions = questions.Select(question => new QuizResponseModel.QuestionItem
-            {
-                Id = question.Id,
-                Text = question.Text,
-                Answers = answers.ContainsKey(question.Id)
-                    ? answers[question.Id].Select(answer => new QuizResponseModel.AnswerItem
-                    {
-                        Id = answer.Id,
-                        Text = answer.Text
-                    })
-                    : new QuizResponseModel.AnswerItem[0],
-                CorrectAnswerId = question.CorrectAnswerId
-            }),
-            Links = new Dictionary<string, string>
-            {
-                {"self", $"/api/quizzes/{id}"},
-                {"questions", $"/api/quizzes/{id}/questions"}
-            }
-        };
+        var result = await _quizService.GetDetails(id);
+        return result;
     }
 
     // POST api/quizzes
     [HttpPost]
-    public IActionResult Post([FromBody]QuizCreateModel value)
+    public async Task<IActionResult> Post([FromBody] QuizCreateModel value)
     {
-        var sql = $"INSERT INTO Quiz (Title) VALUES('{value.Title}'); SELECT LAST_INSERT_ROWID();";
-        var id = _connection.ExecuteScalar(sql);
-        return Created($"/api/quizzes/{id}", null);
+        var quiz = new Quiz()
+        {
+            Title = value.Title,
+        };
+
+        await _quizService.Save(quiz);
+
+        return Created($"/api/quizzes/{quiz.Id}", null);
     }
 
     // PUT api/quizzes/5
     [HttpPut("{id}")]
-    public IActionResult Put(int id, [FromBody]QuizUpdateModel value)
+    public async Task<IActionResult> Put(int id, [FromBody] QuizUpdateModel value)
     {
-        const string sql = "UPDATE Quiz SET Title = @Title WHERE Id = @Id";
-        int rowsUpdated = _connection.Execute(sql, new {Id = id, Title = value.Title});
-        if (rowsUpdated == 0)
-            return NotFound();
+        var quiz = await _quizService.Find(id);
+        if (quiz == null) return NotFound();
+
+        quiz.Title = value.Title;
+        await _quizService.Save(quiz);
+
         return NoContent();
     }
 
     // DELETE api/quizzes/5
     [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        const string sql = "DELETE FROM Quiz WHERE Id = @Id";
-        int rowsDeleted = _connection.Execute(sql, new {Id = id});
-        if (rowsDeleted == 0)
-            return NotFound();
+        var result = await _quizService.Delete(id);
+        if (result) return NotFound();
         return NoContent();
     }
 
     // POST api/quizzes/5/questions
     [HttpPost]
     [Route("{id}/questions")]
-    public IActionResult PostQuestion(int id, [FromBody]QuestionCreateModel value)
+    public async Task<IActionResult> PostQuestion(int id, [FromBody] QuestionCreateModel value)
     {
-        const string sql = "INSERT INTO Question (Text, QuizId) VALUES(@Text, @QuizId); SELECT LAST_INSERT_ROWID();";
-        var questionId = _connection.ExecuteScalar(sql, new {Text = value.Text, QuizId = id});
-        return Created($"/api/quizzes/{id}/questions/{questionId}", null);
+        var question = new Question()
+        {
+            QuizId = id,
+            Text = value.Text
+        };
+
+        await _questionService.Save(question);
+
+        return Created($"/api/quizzes/{id}/questions/{question.Id}", null);
     }
 
     // PUT api/quizzes/5/questions/6
     [HttpPut("{id}/questions/{qid}")]
-    public IActionResult PutQuestion(int id, int qid, [FromBody]QuestionUpdateModel value)
+    public async Task<IActionResult> PutQuestion(int id, int qid, [FromBody] QuestionUpdateModel value)
     {
-        const string sql = "UPDATE Question SET Text = @Text, CorrectAnswerId = @CorrectAnswerId WHERE Id = @QuestionId";
-        int rowsUpdated = _connection.Execute(sql, new {QuestionId = qid, Text = value.Text, CorrectAnswerId = value.CorrectAnswerId});
-        if (rowsUpdated == 0)
-            return NotFound();
+        var question = await _questionService.Find(qid);
+        if (question == null) return NotFound();
+
+        question.Text = value.Text;
+        question.CorrectAnswerId = value.CorrectAnswerId;
+        question.QuizId = id;
+        await _questionService.Save(question);
+
         return NoContent();
     }
 
     // DELETE api/quizzes/5/questions/6
     [HttpDelete]
     [Route("{id}/questions/{qid}")]
-    public IActionResult DeleteQuestion(int id, int qid)
+    public async Task<IActionResult> DeleteQuestion(int id, int qid)
     {
-        const string sql = "DELETE FROM Question WHERE Id = @QuestionId";
-        _connection.ExecuteScalar(sql, new {QuestionId = qid});
+        var result = await _questionService.Delete(id);
+        if (result) return NotFound();
         return NoContent();
     }
 
     // POST api/quizzes/5/questions/6/answers
     [HttpPost]
     [Route("{id}/questions/{qid}/answers")]
-    public IActionResult PostAnswer(int id, int qid, [FromBody]AnswerCreateModel value)
+    public async Task<IActionResult> PostAnswer(int id, int qid, [FromBody] AnswerCreateModel value)
     {
-        const string sql = "INSERT INTO Answer (Text, QuestionId) VALUES(@Text, @QuestionId); SELECT LAST_INSERT_ROWID();";
-        var answerId = _connection.ExecuteScalar(sql, new {Text = value.Text, QuestionId = qid});
-        return Created($"/api/quizzes/{id}/questions/{qid}/answers/{answerId}", null);
+        var answer = new Answer()
+        {
+            QuestionId = qid,
+            Text = value.Text
+        };
+
+        await _answerService.Save(answer);
+
+        return Created($"/api/quizzes/{id}/questions/{qid}/answers/{answer.Id}", null);
     }
 
     // PUT api/quizzes/5/questions/6/answers/7
     [HttpPut("{id}/questions/{qid}/answers/{aid}")]
-    public IActionResult PutAnswer(int id, int qid, int aid, [FromBody]AnswerUpdateModel value)
+    public async Task<IActionResult> PutAnswer(int id, int qid, int aid, [FromBody] AnswerUpdateModel value)
     {
-        const string sql = "UPDATE Answer SET Text = @Text WHERE Id = @AnswerId";
-        int rowsUpdated = _connection.Execute(sql, new {AnswerId = qid, Text = value.Text});
-        if (rowsUpdated == 0)
-            return NotFound();
+        var answer = await _answerService.Find(aid);
+        if (answer == null) return NotFound();
+
+        answer.Text = value.Text;
+        answer.QuestionId = qid;
+        answer.Text = value.Text;
+        await _answerService.Save(answer);
+
         return NoContent();
     }
 
     // DELETE api/quizzes/5/questions/6/answers/7
     [HttpDelete]
     [Route("{id}/questions/{qid}/answers/{aid}")]
-    public IActionResult DeleteAnswer(int id, int qid, int aid)
+    public async Task<IActionResult> DeleteAnswer(int id, int qid, int aid)
     {
-        const string sql = "DELETE FROM Answer WHERE Id = @AnswerId";
-        _connection.ExecuteScalar(sql, new {AnswerId = aid});
+        var result = await _answerService.Delete(aid);
+        if (result) return NotFound();
         return NoContent();
     }
 }
