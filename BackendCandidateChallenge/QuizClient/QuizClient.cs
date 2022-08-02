@@ -6,7 +6,6 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using QuizClient.Tests;
 
 namespace QuizClient;
 
@@ -54,7 +53,7 @@ public class QuizClient
             new Response<Uri>(response.StatusCode, response.Headers.Location) :
             new Response<Uri>(response.StatusCode, null, await ReadErrorAsync(response));
     }
-		
+
     public async Task<Response<Uri>> PostAnswerAsync(int quizId, int questionId, Answer answer, CancellationToken cancellationToken)
     {
         var request =
@@ -121,34 +120,5 @@ public class QuizClient
     private static async Task<T> ReadAndDeserializeAsync<T>(HttpResponseMessage response)
     {
         return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync());
-    }
-}
-
-public struct QuizQuestion
-{
-    public string Text { get; set; }
-}
-
-public struct Response<T>
-{
-    public Response(HttpStatusCode statusCode, T value, string errorMessage = null)
-    {
-        ErrorMessage = errorMessage;
-        StatusCode = statusCode;
-        Value = value;
-    }
-
-    public HttpStatusCode StatusCode { get; }
-    public T Value { get; }
-    public string ErrorMessage { get; }
-}
-
-public class QuizClientException : HttpRequestException
-{
-    public HttpStatusCode ResponseStatusCode { get; }
-
-    public QuizClientException(HttpStatusCode responseStatusCode)
-    {
-        ResponseStatusCode = responseStatusCode;
     }
 }

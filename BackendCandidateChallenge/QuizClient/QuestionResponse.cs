@@ -1,4 +1,4 @@
-namespace QuizClient.Tests;
+namespace QuizClient;
 
 public struct QuestionResponse
 {
