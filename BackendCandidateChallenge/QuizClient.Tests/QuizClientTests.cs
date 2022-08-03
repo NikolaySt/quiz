@@ -7,17 +7,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using PactNet.Mocks.MockHttpService;
 using PactNet.Mocks.MockHttpService.Models;
+using QuizGame.Client.Models;
 using Xunit;
 
-namespace QuizClient.Tests;
+namespace QuizGame.Client.Tests;
 
-public class QuizClientTests : IClassFixture<QuizServiceApiPact>
+public class QuizHttpClientTests : IClassFixture<QuizServiceApiPact>
 {
     private readonly IMockProviderService _mockProviderService;
     private readonly Uri _mockProviderServiceBaseUri;
-    private static readonly HttpClient Client = new HttpClient();
+    private static readonly HttpClient Client = new();
 
-    public QuizClientTests(QuizServiceApiPact data)
+    public QuizHttpClientTests(QuizServiceApiPact data)
     {
         _mockProviderService = data.MockProviderService;
         _mockProviderService.ClearInteractions();
@@ -214,7 +215,7 @@ public class QuizClientTests : IClassFixture<QuizServiceApiPact>
 
         _mockProviderService.VerifyInteractions();
     }
-		
+
     [Fact]
     public async Task PostAnswers_Returns201CreatedAndLocationHeader()
     {
@@ -281,7 +282,7 @@ public class QuizClientTests : IClassFixture<QuizServiceApiPact>
 
         var consumer = new QuizClient(_mockProviderServiceBaseUri, Client);
 
-        var result = await consumer.PostQuizResponseAsync(new QuestionResponse(),123);
+        var result = await consumer.PostQuizResponseAsync(new QuestionResponse(), 123, CancellationToken.None);
         Assert.True(string.IsNullOrEmpty(result.ErrorMessage), result.ErrorMessage);
         Assert.Equal(HttpStatusCode.Created, result.StatusCode);
         Assert.NotNull(result.Value);

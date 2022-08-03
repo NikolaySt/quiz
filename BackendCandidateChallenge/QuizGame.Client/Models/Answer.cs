@@ -1,4 +1,4 @@
-﻿namespace QuizClient;
+﻿namespace QuizGame.Client.Models;
 
 public struct Answer
 {

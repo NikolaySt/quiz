@@ -7,6 +7,7 @@
   <ItemGroup>
     <PackageReference Include="PactNet" Version="3.0.2" />
     <PackageReference Include="PactNet.Windows" Version="3.0.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <PrivateAssets>all</PrivateAssets>
@@ -15,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\QuizClient\QuizClient.csproj" />
+    <ProjectReference Include="..\QuizGame.Client\QuizGame.Client.csproj" />
   </ItemGroup>
 
 </Project>

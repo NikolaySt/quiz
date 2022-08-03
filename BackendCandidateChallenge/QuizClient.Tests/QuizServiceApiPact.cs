@@ -2,7 +2,7 @@ using System;
 using PactNet;
 using PactNet.Mocks.MockHttpService;
 
-namespace QuizClient.Tests;
+namespace QuizGame.Client.Tests;
 
 public class QuizServiceApiPact : IDisposable
 {
