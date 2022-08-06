@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using QuizGame.Common.Messages.Quiz;
+using QuizGame.Common.Services;
 using QuizGame.Service.Model.Answers;
 using QuizGame.Service.Model.Questions;
-using QuizGame.Service.Model.Quizes;
+using QuizGame.Service.Model.Quizzes;
 using QuizGame.Service.Services.Answers;
 using QuizGame.Service.Services.Questions;
-using QuizGame.Service.Services.Quizes;
+using QuizGame.Service.Services.Quizzes;
 
 namespace QuizGame.Service.Controllers;
 
@@ -19,14 +21,19 @@ public class QuizController : Controller
 
     private readonly IAnswerService _answerService;
 
+    private readonly INotificationService _publisher;
+
     public QuizController(
         IQuestionService questionService,
         IQuizService quizService,
-        IAnswerService answerService)
+        IAnswerService answerService,
+        INotificationService publisher)
+
     {
         _questionService = questionService;
         _quizService = quizService;
         _answerService = answerService;
+        _publisher = publisher;
     }
 
     // GET api/quizzes
@@ -51,6 +58,7 @@ public class QuizController : Controller
     public async Task<IActionResult> Post([FromBody] QuizCreateModel value)
     {
         var id = await _quizService.Create(value);
+        await _publisher.Publish(new QuizCreatedMessage() { QuizId = id, Title = value.Title });
         return Created($"/api/quizzes/{id}", null);
     }
 
@@ -60,6 +68,7 @@ public class QuizController : Controller
     {
         if (!await _quizService.Exist(id)) return NotFound();
         await _quizService.Update(id, value);
+        await _publisher.Publish(new QuizUpdatedMessage() { QuizId = id, Title = value.Title });
         return NoContent();
     }
 

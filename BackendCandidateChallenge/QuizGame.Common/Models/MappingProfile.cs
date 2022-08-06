@@ -6,7 +6,7 @@ namespace QuizGame.Common.Models
     public class MappingProfile : Profile
     {
         public MappingProfile(Assembly assembly)
-            => this.ApplyMappingsFromAssembly(assembly);
+            => ApplyMappingsFromAssembly(assembly);
 
         private void ApplyMappingsFromAssembly(Assembly assembly)
         {

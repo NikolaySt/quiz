@@ -1,7 +1,8 @@
 using AutoMapper;
+using QuizGame.Common.Models;
 using QuizGame.Service.Data.Models;
 
-namespace QuizGame.Service.Model.Quizes;
+namespace QuizGame.Service.Model.Quizzes;
 
 public class QuizUpdateModel : IMapFrom<Quiz>
 {

@@ -2,24 +2,24 @@
 using QuizGame.Common.Services;
 using QuizGame.Service.Data.Models;
 
-namespace QuizGame.Service.Data
+namespace QuizGame.Service.Data;
+
+public class QuizDataSeeder : IDataSeeder
 {
-    public class QuizDataSeeder : IDataSeeder
+    private readonly QuizDbContext _db;
+
+    public QuizDataSeeder(QuizDbContext db) => _db = db;
+
+    public void SeedData()
     {
-        private readonly QuizDbContext db;
+        _db.Answer.RemoveRange(_db.Answer);
+        _db.Question.RemoveRange(_db.Question);
+        _db.Quiz.RemoveRange(_db.Quiz);
 
-        public QuizDataSeeder(QuizDbContext db) => this.db = db;
-
-        public void SeedData()
+        _db.Quiz.Add(new Quiz()
         {
-            this.db.Answer.RemoveRange(db.Answer);
-            this.db.Question.RemoveRange(db.Question);
-            this.db.Quiz.RemoveRange(db.Quiz);
-
-            this.db.Quiz.Add(new Quiz()
-            {
-                Title = "My first quiz",
-                Questions = new List<Question>()
+            Title = "My first quiz",
+            Questions = new List<Question>()
                 {
                     new Question()
                     {
@@ -43,13 +43,12 @@ namespace QuizGame.Service.Data
                         }
                     }
                 }
-            });
-            this.db.Quiz.Add(new Quiz()
-            {
-                Title = "My second quiz",
-                Questions = new List<Question>()
-            });
-            this.db.SaveChanges();
-        }
+        });
+        _db.Quiz.Add(new Quiz()
+        {
+            Title = "My second quiz",
+            Questions = new List<Question>()
+        });
+        _db.SaveChanges();
     }
 }

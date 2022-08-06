@@ -1,4 +1,5 @@
 using AutoMapper;
+using QuizGame.Common.Models;
 using QuizGame.Service.Data.Models;
 
 namespace QuizGame.Service.Model.Questions;
