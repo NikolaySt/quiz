@@ -1,7 +1,6 @@
-﻿namespace QuizGame.Client.Models
+﻿namespace QuizGame.Client.Models;
+
+public struct QuizQuestion
 {
-    public struct QuizQuestion
-    {
-        public string Text { get; set; }
-    }
+    public string Text { get; set; }
 }

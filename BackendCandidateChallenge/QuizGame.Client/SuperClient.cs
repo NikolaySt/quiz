@@ -45,7 +45,7 @@ public abstract class SuperClient
     protected async Task<HttpResponseMessage> ExecuteAsync(
         HttpMethod method,
         string relativeUri,
-        object? content = null,
+        object content = null,
         CancellationToken cancellationToken = default)
     {
         var request = new HttpRequestMessage(method, new Uri(_baseUri, relativeUri));
