@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuizGame.Client.Tests", "QuizClient.Tests\QuizGame.Client.Tests.csproj", "{A1746465-9494-46CC-AB14-EB6AB15F446D}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuizGame.Client", "QuizGame.Client\QuizGame.Client.csproj", "{428AB181-F0F0-40F6-8928-4A4E2C5BA28B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuizGame.Common", "QuizGame.Common\QuizGame.Common.csproj", "{9FC6164D-F8A4-44A0-966D-8D1418839B63}"
@@ -13,16 +11,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuizGame.Service", "QuizGam
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuizGame.Service.Tests", "QuizGame.Service.Tests\QuizGame.Service.Tests.csproj", "{EE9B5CC5-D42E-44E6-8AFC-08B77DB9AB33}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuizGame.Client.Tests", "QuizGame.Client.Tests\QuizGame.Client.Tests.csproj", "{C2863697-EEC6-4CA4-8B58-2F2AABC778A5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{C137C727-F417-49BE-87A8-4576492F5C45}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A1746465-9494-46CC-AB14-EB6AB15F446D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A1746465-9494-46CC-AB14-EB6AB15F446D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1746465-9494-46CC-AB14-EB6AB15F446D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A1746465-9494-46CC-AB14-EB6AB15F446D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{428AB181-F0F0-40F6-8928-4A4E2C5BA28B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{428AB181-F0F0-40F6-8928-4A4E2C5BA28B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{428AB181-F0F0-40F6-8928-4A4E2C5BA28B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,9 +37,17 @@ Global
 		{EE9B5CC5-D42E-44E6-8AFC-08B77DB9AB33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE9B5CC5-D42E-44E6-8AFC-08B77DB9AB33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE9B5CC5-D42E-44E6-8AFC-08B77DB9AB33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2863697-EEC6-4CA4-8B58-2F2AABC778A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2863697-EEC6-4CA4-8B58-2F2AABC778A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2863697-EEC6-4CA4-8B58-2F2AABC778A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2863697-EEC6-4CA4-8B58-2F2AABC778A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EE9B5CC5-D42E-44E6-8AFC-08B77DB9AB33} = {C137C727-F417-49BE-87A8-4576492F5C45}
+		{C2863697-EEC6-4CA4-8B58-2F2AABC778A5} = {C137C727-F417-49BE-87A8-4576492F5C45}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6495E7A3-8CDA-4B14-B2E5-48FAC6CE36BB}

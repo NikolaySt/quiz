@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+
+    data:
+        container_name: sqlserver
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        ports: 
+            - "1433:1433"
+        environment:
+            - ACCEPT_EULA=Y
+            - SA_PASSWORD=yourStrongPassword12!@
+        volumes: 
+            - sqldata:/var/opt/mssql 
+        networks: 
+            - quizgame-network
+    
+    messages:
+        container_name: rabbitmq
+        image: rabbitmq:3-management
+        ports:
+            - "15672:15672"
+            - "5672:5672"
+        hostname: "rabbitmq"
+        environment:
+            - RABBITMQ_ERLANG_COOKIE=Rand0mR4bbitMqCo0k1e
+            - RABBITMQ_DEFAULT_USER=rabbitmq
+            - RABBITMQ_DEFAULT_PASS=rabbitmq
+        networks: 
+            - quizgame-network
+            
+    quizgame:
+        container_name: quizgame
+        build:
+            dockerfile: ./QuizGame.Service/Dockerfile
+        ports: 
+            - "5001:80"
+        environment:
+            - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=QuizDatabase;User Id=sa; Password=yourStrongPassword12!@;MultipleActiveResultSets=true
+            - ConnectionStrings__RabbitMqConnection=rabbitmq:rabbitmq@rabbitmq
+        restart: on-failure
+        volumes:
+            - ./.aspnet/quizgame/DataProtection-Keys:/root/.aspnet/DataProtection-Keys
+        networks: 
+            - quizgame-network
+        depends_on:
+            - data
+
+networks:
+    quizgame-network:
+
+volumes:
+    sqldata:
